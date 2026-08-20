@@ -6,7 +6,7 @@ The application logic is deployment-agnostic. The bundled public instance provid
 
 ## Capabilities
 
-- Native binary `.cfg` import/export using official Meshtastic protobufs 2.7.26
+- Native binary `.cfg` import/export targeting Meshtastic 2.8 or 2.7.26
 - Lossless preservation of unknown protobuf fields
 - Native channel URL and QR import/export
 - Exact long-name behavior from the pinned [`nodenavngenerator`](https://github.com/wilhel1812/nodenavngenerator)
@@ -44,7 +44,8 @@ npm run test:e2e
 Copy and edit `public/instance.json`. Its public schema is `public/instance.schema.json`. It may define:
 
 - bilingual site identity and guidance;
-- supported profile formats and versioned defaults;
+- supported target formats, their protobuf adapter, and versioned defaults;
+- optional role-specific recommended defaults;
 - ordered community radio presets and a default preset;
 - additive channel bundles;
 - MQTT providers, regional topic rules, and county-to-region mappings;
@@ -54,7 +55,7 @@ Instance configuration must never contain secrets. It cannot hide or lock editor
 
 ## Format and compatibility policy
 
-The initial adapter baseline is the published `@meshtastic/protobufs@2.7.26`. No older format is supported. Future adapters remain selectable once more than one exists. Client limitations are shown where relevant rather than silently suppressing schema-supported settings.
+Meshtastic 2.8 is the default target and 2.7.26 remains selectable. Both currently use the latest published `@meshtastic/protobufs@2.7.26` adapter because no 2.8 protobuf package has been published. The mapping is explicit in `instance.json`; a native 2.8 adapter can replace it when one becomes available. No format older than 2.7.26 is supported.
 
 `isLicensed` is not a field in the published 2.7.26 `DeviceProfile` message and is therefore not invented or exported by this adapter.
 
