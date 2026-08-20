@@ -1,44 +1,55 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "identity": {
-    "name": {
-      "nb": "Meshtastic nodekonfigurator",
-      "en": "Meshtastic Node Configurator"
-    },
-    "intro": {
-      "nb": "Lag en trygg, importerbar profil med anbefalt oppsett for Norge.",
-      "en": "Create an importable profile using the recommended setup for Norway."
-    },
+    "name": { "nb": "Meshtastic nodekonfigurator", "en": "Meshtastic Node Configurator" },
+    "intro": { "nb": "Lag en trygg, importerbar profil med anbefalt oppsett for Norge.", "en": "Create an importable profile using the recommended setup for Norway." },
     "supportUrl": "https://github.com/wilhel1812/meshtastic-node-configurator/issues"
   },
   "helpers": { "norway": true },
-  "defaultPreset": "norway-recommended",
-  "presets": [
-    {
-      "id": "norway-recommended",
-      "label": {
-        "nb": "Anbefalt oppsett for Norge",
-        "en": "Recommended for Norway"
-      },
-      "description": {
-        "nb": "EU 868 med det felles norske modemoppsettet.",
-        "en": "EU 868 with the shared Norwegian modem configuration."
-      },
-      "sourceUrl": "https://www.868wiki.no/",
-      "defaults": {
-        "role": 1,
-        "timezone": "CET-1CEST,M3.5.0,M10.5.0/3",
-        "lora": {
-          "usePreset": false,
-          "bandwidth": 62,
-          "spreadFactor": 8,
-          "codingRate": 5,
-          "region": 3,
-          "hopLimit": 3,
-          "txEnabled": true,
-          "overrideFrequency": 869.618
-        }
-      }
+  "namingConventionUrl": "https://github.com/wilhel1812/nodenavngenerator#readme",
+  "formats": [{ "id": "2.7.26", "label": "Meshtastic 2.7.26" }],
+  "defaults": {
+    "2.7.26": {
+      "device": { "nodeInfoBroadcastSecs": 900 },
+      "position": { "positionBroadcastSecs": 3600, "gpsUpdateInterval": 120, "positionFlags": 811 },
+      "mqtt": { "encryptionEnabled": true },
+      "network": { "ntpServer": "meshtastic.pool.ntp.org" }
     }
+  },
+  "defaultPreset": "norway-recommended",
+  "presets": [{
+    "id": "norway-recommended",
+    "label": { "nb": "Anbefalt oppsett for Norge", "en": "Recommended for Norway" },
+    "description": { "nb": "EU 868 med det felles norske modemoppsettet.", "en": "EU 868 with the shared Norwegian modem configuration." },
+    "sourceUrl": "https://wiki.868.no/",
+    "defaults": {
+      "role": 1,
+      "timezone": "CET-1CEST,M3.5.0,M10.5.0/3",
+      "lora": { "usePreset": false, "bandwidth": 62, "spreadFactor": 8, "codingRate": 5, "region": 3, "hopLimit": 3, "txEnabled": true, "txPower": 27, "channelNum": 4, "overrideFrequency": 869.618 }
+    }
+  }],
+  "channelBundles": [{
+    "id": "norway-regions",
+    "label": { "nb": "Norske regionskanaler", "en": "Norway regional channels" },
+    "description": { "nb": "Legger til fem sekundærkanaler. Alle kan sende og motta trafikk via MQTT.", "en": "Adds five secondary channels. All can send and receive traffic through MQTT." },
+    "additive": true,
+    "channels": [
+      { "name": "Nord-Norge", "psk": "AQ==", "uplinkEnabled": true, "downlinkEnabled": true, "positionPrecision": 0 },
+      { "name": "Trøndelag", "psk": "AQ==", "uplinkEnabled": true, "downlinkEnabled": true, "positionPrecision": 0 },
+      { "name": "Østlandet", "psk": "AQ==", "uplinkEnabled": true, "downlinkEnabled": true, "positionPrecision": 0 },
+      { "name": "Vestlandet", "psk": "AQ==", "uplinkEnabled": true, "downlinkEnabled": true, "positionPrecision": 0 },
+      { "name": "Sørlandet", "psk": "AQ==", "uplinkEnabled": true, "downlinkEnabled": true, "positionPrecision": 0 }
+    ]
+  }],
+  "mqttProviders": [
+    { "id": "868", "label": { "nb": "868.no (anbefalt)", "en": "868.no (recommended)" }, "recommended": true, "address": "mqtt.868.no:1883", "username": "meshdev", "password": "large4cats", "root": "msh/EU_868/NO", "regionalRoot": "msh/EU_868/NO/<region>", "encryptionEnabled": true, "tlsEnabled": false },
+    { "id": "official", "label": { "nb": "Offisiell Meshtastic", "en": "Official Meshtastic" }, "address": "mqtt.meshtastic.org", "username": "meshdev", "password": "large4cats", "root": "msh", "encryptionEnabled": true, "tlsEnabled": false }
+  ],
+  "regions": [
+    { "id": "Nord-Norge", "label": "Nord-Norge", "counties": ["Nordland", "Troms", "Finnmark"] },
+    { "id": "Trøndelag", "label": "Trøndelag", "counties": ["Trøndelag"] },
+    { "id": "Vestlandet", "label": "Vestlandet", "counties": ["Møre og Romsdal", "Vestland", "Rogaland"] },
+    { "id": "Østlandet", "label": "Østlandet", "counties": ["Oslo", "Akershus", "Østfold", "Innlandet", "Buskerud", "Vestfold", "Telemark"] },
+    { "id": "Sørlandet", "label": "Sørlandet", "counties": ["Agder"] }
   ]
 }
