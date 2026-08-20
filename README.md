@@ -10,7 +10,8 @@ The application logic is deployment-agnostic. The bundled public instance provid
 - Lossless preservation of unknown protobuf fields
 - Native channel URL and QR import/export
 - Exact long-name behavior from the pinned [`nodenavngenerator`](https://github.com/wilhel1812/nodenavngenerator)
-- Field and section inclusion controls with resolved-value preview
+- Guided role, GPS, naming, MQTT/map, and additive-channel choices with resolved-value preview
+- Whole-section inclusion controls and per-field reset to effective versioned defaults
 - Hardware-neutral radio, position, power, Wi-Fi, Bluetooth, security, and selected module settings
 - Optional OpenStreetMap and Kartverket location assistance
 - Bokmål and English, light/dark/system themes, responsive and offline-capable PWA
@@ -43,9 +44,11 @@ npm run test:e2e
 Copy and edit `public/instance.json`. Its public schema is `public/instance.schema.json`. It may define:
 
 - bilingual site identity and guidance;
-- ordered presets and a default preset;
-- recommended role, timezone, and LoRa values;
-- whether Norwegian municipality/name helpers are enabled.
+- supported profile formats and versioned defaults;
+- ordered community radio presets and a default preset;
+- additive channel bundles;
+- MQTT providers, regional topic rules, and county-to-region mappings;
+- a naming-convention documentation URL and optional municipality/name helpers.
 
 Instance configuration must never contain secrets. It cannot hide or lock editor fields. Invalid configuration causes a visible warning and neutral fallback editor.
 
