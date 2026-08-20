@@ -19,6 +19,7 @@ describe("full-section profile encoding", () => {
 });
 
 describe("defaults, migration, and preservation", () => {
+  it.each([[2, 14400, false], [11, 14400, false], [12, 14400, false], [0, 3600, true], [1, 3600, true], [5, 3600, true]] as const)("uses the role-specific position defaults for role %s", (role, interval, smart) => { const draft = validDraft(); draft.sections.device.values.role = role; const resetInterval = resetField(draft, instance, "positionBroadcastSecs", "position"); const resetSmart = resetField(draft, instance, "positionBroadcastSmartEnabled", "position"); expect(resetInterval.sections.position.values.positionBroadcastSecs).toBe(interval); expect(resetSmart.sections.position.values.positionBroadcastSmartEnabled).toBe(smart); });
   it("resets imported edits to the effective instance default", () => { const draft = validDraft(); draft.sections.lora.values.txPower = 9; expect(resetField(draft, instance, "txPower", "lora").sections.lora.values.txPower).toBe(27); });
   it("migrates selected v1 values and defaults unselected values", () => { const old: any = validDraft(); old.schemaVersion = 1; old.sections.lora.selected = { txPower: true, bandwidth: false }; old.sections.lora.values.txPower = 12; old.sections.lora.values.bandwidth = 250; const migrated = migrateDraft(old, instance); expect(migrated.sections.lora.values.txPower).toBe(12); expect(migrated.sections.lora.values.bandwidth).toBe(62); expect(migrated.schemaVersion).toBe(2); });
   it("preserves unknown wire fields across import and re-export", () => { const known = encodeProfile(validDraft()); const future = new Uint8Array([...known, 0xa0, 0x06, 0x2a]); const imported = importProfile(future, "future.cfg", instance); const decoded = fromBinary(ClientOnly.DeviceProfileSchema, encodeProfile(imported), { readUnknownFields: true }) as any; expect(decoded.$unknown[0].no).toBe(100); });
@@ -26,6 +27,7 @@ describe("defaults, migration, and preservation", () => {
 });
 
 describe("public instance contracts", () => {
+  it("targets 2.8 by default while retaining the 2.7.26 baseline", () => { expect(instance.defaultFormat).toBe("2.8"); expect(instance.formats).toEqual([{ id: "2.8", label: "Meshtastic 2.8", protobufVersion: "2.7.26" }, { id: "2.7.26", label: "Meshtastic 2.7.26", protobufVersion: "2.7.26" }]); expect(createDraft(instance).profileFormat).toBe("2.8"); });
   it("keeps both MQTT providers and exact 868.no topic credentials", () => { expect(instance.mqttProviders.map((p) => p.id)).toEqual(["868", "official"]); expect(instance.mqttProviders[0]).toMatchObject({ address: "mqtt.868.no:1883", username: "meshdev", password: "large4cats", regionalRoot: "msh/EU_868/NO/<region>", encryptionEnabled: true, tlsEnabled: false }); });
   it("keeps the additive five-channel Norway bundle exact", () => { const bundle = instance.channelBundles[0]; expect(bundle.additive).toBe(true); expect(bundle.channels.map((c) => c.name)).toEqual(["Nord-Norge", "Trøndelag", "Østlandet", "Vestlandet", "Sørlandet"]); expect(bundle.channels.every((c) => c.psk === "AQ==" && c.uplinkEnabled && c.downlinkEnabled && c.positionPrecision === 0)).toBe(true); });
 });
