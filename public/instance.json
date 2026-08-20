@@ -7,14 +7,29 @@
   },
   "helpers": { "norway": true },
   "namingConventionUrl": "https://github.com/wilhel1812/nodenavngenerator#readme",
-  "formats": [{ "id": "2.7.26", "label": "Meshtastic 2.7.26" }],
+  "defaultFormat": "2.8",
+  "formats": [
+    { "id": "2.8", "label": "Meshtastic 2.8", "protobufVersion": "2.7.26" },
+    { "id": "2.7.26", "label": "Meshtastic 2.7.26", "protobufVersion": "2.7.26" }
+  ],
   "defaults": {
+    "2.8": {
+      "device": { "nodeInfoBroadcastSecs": 900 },
+      "position": { "positionBroadcastSecs": 3600, "positionBroadcastSmartEnabled": true, "gpsUpdateInterval": 120, "positionFlags": 811 },
+      "mqtt": { "encryptionEnabled": true },
+      "network": { "ntpServer": "meshtastic.pool.ntp.org" }
+    },
     "2.7.26": {
       "device": { "nodeInfoBroadcastSecs": 900 },
-      "position": { "positionBroadcastSecs": 3600, "gpsUpdateInterval": 120, "positionFlags": 811 },
+      "position": { "positionBroadcastSecs": 3600, "positionBroadcastSmartEnabled": true, "gpsUpdateInterval": 120, "positionFlags": 811 },
       "mqtt": { "encryptionEnabled": true },
       "network": { "ntpServer": "meshtastic.pool.ntp.org" }
     }
+  },
+  "roleDefaults": {
+    "2": { "position": { "positionBroadcastSecs": 14400, "positionBroadcastSmartEnabled": false } },
+    "11": { "position": { "positionBroadcastSecs": 14400, "positionBroadcastSmartEnabled": false } },
+    "12": { "position": { "positionBroadcastSecs": 14400, "positionBroadcastSmartEnabled": false } }
   },
   "defaultPreset": "norway-recommended",
   "presets": [{

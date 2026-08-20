@@ -2,6 +2,7 @@ import type { DescMessage } from "@bufbuild/protobuf";
 
 export type Language = "nb" | "en";
 export type Theme = "system" | "light" | "dark";
+export type ProfileFormat = "2.8" | "2.7.26";
 export type Localized = Record<Language, string>;
 export type FieldValue = string | number | boolean | bigint | Uint8Array | number[] | Uint8Array[];
 export type InstancePreset = { id: string; label: Localized; description: Localized; sourceUrl?: string; defaults: { role: number; timezone: string; lora: Record<string, FieldValue> } };
@@ -16,8 +17,10 @@ export type InstanceConfig = {
   identity: { name: Localized; intro: Localized; supportUrl?: string };
   helpers: { norway: boolean };
   namingConventionUrl?: string;
-  formats: Array<{ id: "2.7.26"; label: string }>;
+  defaultFormat: ProfileFormat;
+  formats: Array<{ id: ProfileFormat; label: string; protobufVersion: "2.7.26" }>;
   defaults: Record<string, Partial<Record<SectionId, Record<string, FieldValue>>>>;
+  roleDefaults: Record<string, Partial<Record<SectionId, Record<string, FieldValue>>>>;
   defaultPreset: string;
   presets: InstancePreset[];
   channelBundles: ChannelBundle[];
@@ -29,7 +32,7 @@ export type SectionDraft = { included: boolean; values: Record<string, FieldValu
 export type LocationDraft = { latitude: string; longitude: string; altitude: string; municipalityNumber: string; municipalityCode: string; municipalityName: string; countyName: string; placeName: string; placeNameEdited: boolean; municipalityOverride: boolean };
 export type GuidedDraft = { radio: "community" | "custom"; roleChosen: boolean; gps: "" | "enabled" | "disabled" | "absent"; mapReporting: boolean; mqttConsent: boolean; mqttProvider: string; mqttRegionRequired: boolean; mqttTransport: "proxy" | "wifi"; mqttRegion: string };
 export type Draft = {
-  schemaVersion: 2; profileFormat: "2.7.26"; presetId: string; customLongName: boolean;
+  schemaVersion: 2; profileFormat: ProfileFormat; presetId: string; customLongName: boolean;
   naming: { roleCode: string; municipality: string; location: string; owner: string; suffix: string };
   longName: string; shortName: string; channelsIncluded: boolean; channels: ChannelDraft[];
   sections: Record<SectionId, SectionDraft>; location: LocationDraft; guided: GuidedDraft;

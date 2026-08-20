@@ -22,19 +22,20 @@ export const sections: SectionDef[] = [
 export const sectionMap = Object.fromEntries(sections.map((section) => [section.id, section])) as Record<SectionId, SectionDef>;
 function normalize(value: unknown): FieldValue { if (value instanceof Uint8Array) return btoa(String.fromCharCode(...value)); if (Array.isArray(value)) return value as number[]; if (["string", "number", "boolean", "bigint"].includes(typeof value)) return value as FieldValue; return ""; }
 export function protobufDefaults(id: SectionId): Record<string, FieldValue> { const def = sectionMap[id]; const message = create(def.schema) as unknown as Record<string, unknown>; return Object.fromEntries(def.editable.map((field) => [field, normalize(message[field])])); }
-export function effectiveDefaults(instance: InstanceConfig, preset: InstancePreset, format: string, id: SectionId): Record<string, FieldValue> { const result = { ...protobufDefaults(id), ...(instance.defaults[format]?.[id] ?? {}) }; if (id === "device") Object.assign(result, { role: preset.defaults.role, tzdef: preset.defaults.timezone }); if (id === "lora") Object.assign(result, preset.defaults.lora); return result; }
+export function effectiveDefaults(instance: InstanceConfig, preset: InstancePreset, format: string, id: SectionId, role = preset.defaults.role): Record<string, FieldValue> { const result = { ...protobufDefaults(id), ...(instance.defaults[format]?.[id] ?? {}), ...(instance.roleDefaults["*"]?.[id] ?? {}), ...(instance.roleDefaults[String(role)]?.[id] ?? {}) }; if (id === "device") Object.assign(result, { role: preset.defaults.role, tzdef: preset.defaults.timezone }); if (id === "lora") Object.assign(result, preset.defaults.lora); return result; }
 
 export const FALLBACK_INSTANCE: InstanceConfig = {
   schemaVersion: 2, identity: { name: { nb: "Meshtastic nodekonfigurator", en: "Meshtastic Node Configurator" }, intro: { nb: "Lag og inspiser en Meshtastic-profil lokalt i nettleseren.", en: "Create and inspect a Meshtastic profile locally in your browser." } }, helpers: { norway: false },
-  formats: [{ id: PROFILE_VERSION, label: PROFILE_VERSION }], defaults: { [PROFILE_VERSION]: {} }, defaultPreset: "neutral",
+  defaultFormat: "2.8", formats: [{ id: "2.8", label: "Meshtastic 2.8", protobufVersion: PROFILE_VERSION }, { id: PROFILE_VERSION, label: `Meshtastic ${PROFILE_VERSION}`, protobufVersion: PROFILE_VERSION }], defaults: { "2.8": {}, [PROFILE_VERSION]: {} }, roleDefaults: {}, defaultPreset: "neutral",
   presets: [{ id: "neutral", label: { nb: "Nøytral profil", en: "Neutral profile" }, description: { nb: "Ingen vertsdefinerte anbefalinger.", en: "No host recommendations." }, defaults: { role: 0, timezone: "", lora: {} } }], channelBundles: [], mqttProviders: [], regions: [],
 };
 export function validateInstance(value: unknown): InstanceConfig {
   if (!value || typeof value !== "object") throw new Error("Instance configuration is not an object");
   const c = value as InstanceConfig;
   if (c.schemaVersion !== 2 || !c.identity?.name?.nb || !c.identity?.name?.en) throw new Error("Unsupported or incomplete instance configuration");
-  if (!Array.isArray(c.formats) || !c.formats.some((format) => format.id === PROFILE_VERSION) || c.formats.some((format) => !format.id || !format.label)) throw new Error("Current profile format is missing");
+  if (!Array.isArray(c.formats) || !c.formats.some((format) => format.id === PROFILE_VERSION) || !c.formats.some((format) => format.id === c.defaultFormat) || c.formats.some((format) => !format.id || !format.label || format.protobufVersion !== PROFILE_VERSION)) throw new Error("Current profile format is missing or unsupported");
   if (!c.defaults || typeof c.defaults !== "object") throw new Error("Versioned defaults are missing");
+  if (!c.roleDefaults || typeof c.roleDefaults !== "object") throw new Error("Role defaults are missing");
   if (!Array.isArray(c.presets) || !c.presets.some((preset) => preset.id === c.defaultPreset)) throw new Error("Default preset does not exist");
   if (c.presets.some((preset) => !preset.id || !preset.label?.nb || !preset.label?.en || typeof preset.defaults?.role !== "number" || typeof preset.defaults?.timezone !== "string" || !preset.defaults?.lora)) throw new Error("Invalid preset");
   if (!Array.isArray(c.channelBundles) || c.channelBundles.some((bundle) => !bundle.id || !bundle.label?.nb || !bundle.label?.en || !Array.isArray(bundle.channels) || bundle.channels.some((channel) => !channel.name || typeof channel.psk !== "string"))) throw new Error("Invalid channel bundle");
