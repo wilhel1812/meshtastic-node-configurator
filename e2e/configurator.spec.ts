@@ -55,7 +55,7 @@ test("shows the Router warning without moving to another section", async ({ page
 });
 
 test("uses plain-language internet choices", async ({ page }) => {
-  await page.getByLabel(/May packets be relayed/).check();
+  await page.getByLabel("Yes, I consent").check();
   const connection = page.getByLabel("How should the node connect to the internet?");
   await expect(connection).toBeVisible();
   await expect(connection.locator("option")).toHaveText(["Via your phone", "Wi-Fi"]);
@@ -64,7 +64,7 @@ test("uses plain-language internet choices", async ({ page }) => {
 test("reveals channel keys on request", async ({ page }) => {
   await page.getByRole("button", { name: "Preview" }).click();
   await page.getByRole("button", { name: "Confirm" }).click();
-  const key = page.getByLabel("Key").first();
+  const key = page.getByLabel("Key", { exact: true }).first();
   await expect(key).toHaveAttribute("type", "password");
   await page.getByLabel("Show channel keys").check();
   await expect(key).toHaveAttribute("type", "text");
