@@ -2,7 +2,7 @@ const coordinates = { latitude: 59.91, longitude: 10.75 };
 const endpoints = [
   `https://ws.geonorge.no/kommuneinfo/v1/punkt?nord=${coordinates.latitude}&ost=${coordinates.longitude}&koordsys=4258`,
   `https://ws.geonorge.no/stedsnavn/v1/punkt?ost=${coordinates.longitude}&nord=${coordinates.latitude}&koordsys=4258&radius=1000&treffPerSide=1`,
-  `https://ws.geonorge.no/hoydedata/v1/punkt?lon=${coordinates.longitude}&lat=${coordinates.latitude}&koordsys=4258`,
+  `https://ws.geonorge.no/hoydedata/v1/punkt?ost=${coordinates.longitude}&nord=${coordinates.latitude}&koordsys=4258`,
 ];
 
 let failed = false;

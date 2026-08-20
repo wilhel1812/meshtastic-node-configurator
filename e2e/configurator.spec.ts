@@ -35,8 +35,11 @@ test("resolves location automatically and protects a manual place name", async (
   await page.route(/kommuneinfo/, (route) => route.fulfill({ json: { kommunenummer: "0301", kommunenavn: "Oslo", fylkesnavn: "Oslo" } }));
   await page.route(/stedsnavn/, (route) => route.fulfill({ json: { navn: [{ stedsnavn: [{ navnestatus: "hovednavn", skrivemåte: "SENTRUM" }] }] } }));
   await page.route(/hoydedata/, (route) => route.fulfill({ json: { punkter: [{ z: 42 }] } }));
+  const placeRequest = page.waitForRequest(/stedsnavn\/v1\/punkt\?nord=59\.91&ost=10\.75&koordsys=4258/);
+  const elevationRequest = page.waitForRequest(/hoydedata\/v1\/punkt\?nord=59\.91&ost=10\.75&koordsys=4258/);
   await page.getByLabel("Latitude").fill("59.91");
   await page.getByLabel("Longitude").fill("10.75");
+  await Promise.all([placeRequest, elevationRequest]);
   await expect(page.getByLabel("Municipality")).toHaveValue("OSL");
   await expect(page.getByLabel("Location", { exact: true })).toHaveValue("SENTRUM");
   await expect(page.getByLabel("Elevation")).toHaveValue("42");
