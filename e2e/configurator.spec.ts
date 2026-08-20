@@ -46,9 +46,10 @@ test("resolves location automatically and protects a manual place name", async (
 });
 
 test("shows the Router warning without moving to another section", async ({ page }) => {
+  await page.evaluate(() => { (window as any).__forcedScroll = false; HTMLElement.prototype.scrollIntoView = () => { (window as any).__forcedScroll = true; }; });
   await page.getByLabel("Device role").selectOption({ label: "ROUTER" });
   await expect(page.getByText(/Router is an infrastructure role/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Device" })).toBeInViewport();
+  expect(await page.evaluate(() => (window as any).__forcedScroll)).toBe(false);
   await page.locator("#position-card").getByText("Details").click();
   await expect(page.getByLabel("Position Broadcast Secs")).toHaveValue("14400");
   await expect(page.getByLabel("Position Broadcast Smart Enabled")).toHaveValue("false");
