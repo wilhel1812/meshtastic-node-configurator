@@ -1,0 +1,33 @@
+name: Check Kartverket contracts
+
+on:
+  schedule:
+    - cron: "21 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: contract
+        continue-on-error: true
+        run: node scripts/check-geodata.mjs
+      - if: steps.contract.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create geodata-drift --description "Kartverket contract changes" --color D93F0B --force
+          existing=$(gh issue list --state open --label geodata-drift --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "The scheduled Kartverket contract check is still failing. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          else
+            gh issue create --title "Kartverket service contract drift" --label geodata-drift --body "The scheduled Kartverket contract check failed. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          fi

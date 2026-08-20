@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wilhel1812.github.io/meshtastic-node-configurator/instance.schema.json",
+  "title": "Meshtastic Node Configurator instance configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "identity", "helpers", "defaultPreset", "presets"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "identity": { "type": "object" },
+    "helpers": { "type": "object" },
+    "defaultPreset": { "type": "string" },
+    "presets": { "type": "array", "minItems": 1 }
+  }
+}

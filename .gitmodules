@@ -1,0 +1,3 @@
+[submodule "vendor/nodenavngenerator"]
+	path = vendor/nodenavngenerator
+	url = https://github.com/wilhel1812/nodenavngenerator.git

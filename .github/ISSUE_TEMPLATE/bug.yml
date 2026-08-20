@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible configurator problem without exposing profile data
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never upload a raw `.cfg` file.** It may contain passwords, private keys, channel keys, names, identifiers, and exact coordinates.
+  - type: input
+    id: version
+    attributes:
+      label: Configurator version
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options: [Safari, Chrome, Edge, Firefox, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Redacted reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: I removed all credentials, keys, names, identifiers, and exact coordinates.
+          required: true

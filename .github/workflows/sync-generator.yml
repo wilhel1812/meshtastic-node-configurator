@@ -1,0 +1,63 @@
+name: Sync node name generator
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  repository_dispatch:
+    types: [nodenavngenerator-release]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: update
+        run: |
+          git -C vendor/nodenavngenerator fetch origin main
+          before=$(git -C vendor/nodenavngenerator rev-parse HEAD)
+          after=$(git -C vendor/nodenavngenerator rev-parse origin/main)
+          echo "changed=$([ "$before" != "$after" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          if [ "$before" != "$after" ]; then git -C vendor/nodenavngenerator checkout "$after"; fi
+      - if: steps.update.outputs.changed == 'true'
+        id: verify
+        continue-on-error: true
+        run: npm run check && npm run lint && npm run build
+      - if: steps.verify.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(npm version patch --no-git-tag-version)
+          branch="automation/generator-${version#v}"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git switch -c "$branch"
+          git add -- vendor/nodenavngenerator package.json package-lock.json
+          git commit -m "chore: sync node name generator and bump to ${version#v}"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "chore: sync node name generator ${version}" --body "Automated compatible generator update. Contract tests, lint, and production build passed."
+          gh pr merge "$branch" --auto --squash
+      - if: steps.verify.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create generator-sync --description "Node name generator compatibility" --color 1D76DB --force
+          existing=$(gh issue list --state open --label generator-sync --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "The latest generator sync still fails contract checks. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          else
+            gh issue create --title "Node name generator sync is blocked" --label generator-sync --body "The latest upstream generator revision failed compatibility checks and remains unmerged. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          fi
