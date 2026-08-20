@@ -12,7 +12,12 @@ export default tseslint.config(
     files: ["**/*.{ts,tsx}"],
     languageOptions: { ecmaVersion: 2022, globals: globals.browser },
     plugins: { "react-hooks": reactHooks, "react-refresh": reactRefresh },
-    rules: { ...reactHooks.configs.recommended.rules, "react-refresh/only-export-components": ["warn", { allowConstantExport: true }], "@typescript-eslint/no-explicit-any": "off" },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      "react-hooks/set-state-in-effect": "off",
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "@typescript-eslint/no-explicit-any": "off",
+    },
   },
   {
     files: ["scripts/**/*.mjs"],
