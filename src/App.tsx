@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Config } from "@meshtastic/protobufs";
 import QRCode from "qrcode";
-import { AlertTriangle, Check, ChevronDown, Download, FileUp, Github, MapPin, Monitor, Moon, Plus, QrCode, RotateCcw, Sun, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, Download, FileUp, MapPin, Monitor, Moon, Plus, QrCode, RotateCcw, Sun, Trash2, Upload } from "lucide-react";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { effectiveDefaults, FALLBACK_INSTANCE, MAX_PROFILE_BYTES, sectionMap, sections, validateInstance } from "./config";
 import { fieldLabel, sectionLabels, ui } from "./i18n";
@@ -18,6 +18,10 @@ const OLD_STORAGE_KEY = "meshtastic-node-configurator:draft:v1";
 const LANGUAGE_KEY = "meshtastic-node-configurator:language";
 const THEME_KEY = "meshtastic-node-configurator:theme";
 const specialSections: SectionId[] = ["lora", "device", "position", "mqtt", "network"];
+
+function GitHubIcon() {
+  return <svg className="lucide lucide-github" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>;
+}
 
 function initialLanguage(): Language { const saved = localStorage.getItem(LANGUAGE_KEY); if (saved === "nb" || saved === "en") return saved; return /^(no|nb|nn)/i.test(navigator.language) ? "nb" : "en"; }
 function savedDraft(instance: InstanceConfig): Draft | null { try { const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(OLD_STORAGE_KEY); return raw ? migrateDraft(JSON.parse(raw), instance) : null; } catch { return null; } }
@@ -93,7 +97,7 @@ export default function App() {
 
   return <>
     <a className="skip-link" href="#main">{text.skip}</a>
-    <header className="app-header"><div><p className="eyebrow">DeviceProfile {draft.profileFormat}</p><h1>{instance.identity.name[language]}</h1><p>{instance.identity.intro[language]}</p></div><div className="header-controls"><select aria-label={language === "nb" ? "Profilformat" : "Profile format"} value={draft.profileFormat} onChange={(e) => setDraft({ ...draft, profileFormat: e.target.value as Draft["profileFormat"] })}>{instance.formats.map((format) => <option key={format.id} value={format.id}>{format.label}</option>)}</select><select aria-label="Language" value={language} onChange={(e) => setLanguage(e.target.value as Language)}><option value="nb">Norsk</option><option value="en">English</option></select><div className="segmented theme-toggle" aria-label="Theme">{(["light", "system", "dark"] as Theme[]).map((item) => <button key={item} aria-label={item} aria-pressed={theme === item} onClick={() => setTheme(item)}>{item === "light" ? <Sun /> : item === "dark" ? <Moon /> : <Monitor />}</button>)}</div><a className="icon-button" aria-label="GitHub" href="https://github.com/wilhel1812/meshtastic-node-configurator"><Github /></a></div></header>
+    <header className="app-header"><div><p className="eyebrow">DeviceProfile {draft.profileFormat}</p><h1>{instance.identity.name[language]}</h1><p>{instance.identity.intro[language]}</p></div><div className="header-controls"><select aria-label={language === "nb" ? "Profilformat" : "Profile format"} value={draft.profileFormat} onChange={(e) => setDraft({ ...draft, profileFormat: e.target.value as Draft["profileFormat"] })}>{instance.formats.map((format) => <option key={format.id} value={format.id}>{format.label}</option>)}</select><select aria-label="Language" value={language} onChange={(e) => setLanguage(e.target.value as Language)}><option value="nb">Norsk</option><option value="en">English</option></select><div className="segmented theme-toggle" aria-label="Theme">{(["light", "system", "dark"] as Theme[]).map((item) => <button key={item} aria-label={item} aria-pressed={theme === item} onClick={() => setTheme(item)}>{item === "light" ? <Sun /> : item === "dark" ? <Moon /> : <Monitor />}</button>)}</div><a className="icon-button" aria-label="GitHub" href="https://github.com/wilhel1812/meshtastic-node-configurator"><GitHubIcon /></a></div></header>
     <div className="notices">{instanceError && <p><AlertTriangle />{text.invalidInstance}</p>}{!online && <p><AlertTriangle />{text.offline}</p>}{needRefresh && <p>{text.updateReady}<button onClick={() => void updateServiceWorker(true)}>{text.reload}</button></p>}{importError && <p><AlertTriangle />{importError}</p>}</div>
     <nav className="toolbar"><button className="danger-link" onClick={() => { if (confirm(text.clearConfirm)) { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(OLD_STORAGE_KEY); setDraft(createDraft(instance)); } }}><Trash2 />{text.clear}</button><button className="secondary" onClick={() => setImportOpen(true)}><FileUp />{text.import}</button><button className="secondary" onClick={() => setDraft(createDraft(instance))}><Plus />{text.newProfile}</button><button className="primary" onClick={() => setExportOpen(true)}><Download />{text.export}</button></nav>
     <main id="main" className="workspace"><div className="editor-column">
