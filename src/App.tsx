@@ -26,12 +26,24 @@ function roleLabel(name: string, language: Language) {
     CLIENT_BASE: { nb: "Client Base — fast tak- eller basenode", en: "Client Base — fixed rooftop or base node" },
     CLIENT: { nb: "Client — generell klient", en: "Client — general-purpose client" },
   };
-  return labels[name]?.[language] ?? name;
+  const readableNames: Record<string, string> = {
+    ROUTER: "Router",
+    ROUTER_CLIENT: "Router Client",
+    REPEATER: "Repeater",
+    TRACKER: "Tracker",
+    SENSOR: "Sensor",
+    TAK: "TAK",
+    CLIENT_HIDDEN: "Client Hidden",
+    LOST_AND_FOUND: "Lost and Found",
+    TAK_TRACKER: "TAK Tracker",
+    ROUTER_LATE: "Router Late",
+  };
+  return labels[name]?.[language] ?? readableNames[name] ?? name;
 }
 
 function RoleOptions({ language }: { language: Language }) {
   const roles = Config.Config_DeviceConfig_RoleSchema.values;
-  return <><optgroup label={language === "nb" ? "For de fleste" : "For most users"}>{commonRoleNames.map((name) => { const role = roles.find((item: any) => item.name === name); return role ? <option key={role.number} value={role.number}>{roleLabel(role.name, language)}</option> : null; })}</optgroup><optgroup label={language === "nb" ? "Avansert" : "Advanced"}>{roles.filter((role: any) => !commonRoleNames.includes(role.name)).map((role: any) => <option key={role.number} value={role.number}>{role.name}</option>)}</optgroup></>;
+  return <><optgroup label={language === "nb" ? "For de fleste" : "For most users"}>{commonRoleNames.map((name) => { const role = roles.find((item: any) => item.name === name); return role ? <option key={role.number} value={role.number}>{roleLabel(role.name, language)}</option> : null; })}</optgroup><optgroup label={language === "nb" ? "Avansert" : "Advanced"}>{roles.filter((role: any) => !commonRoleNames.includes(role.name)).map((role: any) => <option key={role.number} value={role.number}>{roleLabel(role.name, language)}</option>)}</optgroup></>;
 }
 
 function roleGuidance(role: number, language: Language) {
