@@ -11,7 +11,7 @@ updates:
         versions: [">= 7.0.0 < 8.0.0"]
       # Keep development types aligned with the Node 24 CI baseline.
       - dependency-name: "@types/node"
-        versions: [">= 26.0.0 < 27.0.0"]
+        versions: [">= 25.0.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
