@@ -50,7 +50,7 @@ test("resolves location automatically and protects a manual place name", async (
 
 test("shows the Router warning without moving to another section", async ({ page }) => {
   await page.evaluate(() => { (window as any).__forcedScroll = false; HTMLElement.prototype.scrollIntoView = () => { (window as any).__forcedScroll = true; }; });
-  await page.getByLabel("Device role").selectOption({ label: "ROUTER" });
+  await page.getByLabel("Device role").selectOption("2");
   await expect(page.getByText(/Router is an infrastructure role/)).toBeVisible();
   expect(await page.evaluate(() => (window as any).__forcedScroll)).toBe(false);
   await page.locator("#position-card").getByText("Details").click();
@@ -66,6 +66,18 @@ test("puts common roles first and guides the Client fallback", async ({ page }) 
     "Client Mute — personal or moving node",
     "Client Base — fixed rooftop or base node",
     "Client — general-purpose client",
+  ]);
+  await expect(role.locator("optgroup").nth(1).locator("option")).toHaveText([
+    "Router",
+    "Router Client",
+    "Repeater",
+    "Tracker",
+    "Sensor",
+    "TAK",
+    "Client Hidden",
+    "Lost and Found",
+    "TAK Tracker",
+    "Router Late",
   ]);
   await role.selectOption("0");
   await expect(page.getByText("Client works, but prefer Client Mute for a personal or moving node, or Client Base for a fixed rooftop node.")).toBeVisible();
