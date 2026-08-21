@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("guides role, GPS, location and generated naming into export", async ({ page }) => {
-  await page.getByLabel("Device role").selectOption({ label: "CLIENT_MUTE" });
+  await page.getByLabel("Device role").selectOption("1");
   await page.getByLabel("GPS enabled").check();
   await page.getByLabel("Latitude").fill("59.91");
   await page.getByLabel("Longitude").fill("10.75");
@@ -56,6 +56,21 @@ test("shows the Router warning without moving to another section", async ({ page
   await page.locator("#position-card").getByText("Details").click();
   await expect(page.getByLabel("Position Broadcast Secs")).toHaveValue("14400");
   await expect(page.getByLabel("Position Broadcast Smart Enabled")).toHaveValue("false");
+});
+
+test("puts common roles first and guides the Client fallback", async ({ page }) => {
+  const role = page.getByLabel("Device role");
+  await expect(role.locator("optgroup").nth(0)).toHaveAttribute("label", "For most users");
+  await expect(role.locator("optgroup").nth(1)).toHaveAttribute("label", "Advanced");
+  await expect(role.locator("optgroup").nth(0).locator("option")).toHaveText([
+    "Client Mute — personal or moving node",
+    "Client Base — fixed rooftop or base node",
+    "Client — general-purpose client",
+  ]);
+  await role.selectOption("0");
+  await expect(page.getByText("Client works, but prefer Client Mute for a personal or moving node, or Client Base for a fixed rooftop node.")).toBeVisible();
+  await role.selectOption("1");
+  await expect(page.getByText("Recommended for personal nodes and nodes that move.")).toBeVisible();
 });
 
 test("uses plain-language internet choices", async ({ page }) => {
