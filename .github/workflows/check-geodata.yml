@@ -31,3 +31,12 @@ jobs:
           else
             gh issue create --title "Kartverket service contract drift" --label geodata-drift --body "The scheduled Kartverket contract check failed. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           fi
+      - name: Close recovered contract alerts
+        if: steps.contract.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state open --label geodata-drift --json number --jq '.[].number' |
+            while read -r number; do
+              gh issue close "$number" --reason completed
+            done
